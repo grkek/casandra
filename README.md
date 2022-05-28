@@ -1,10 +1,6 @@
-# Case Aware Json
+# Casandra
 
-Allow to serialize and deserialize json with various cases conventions for object keys.
-Can be used by passing an extra param to the `to_json` and `from_json` methods.  
-Might not mix well with `@[JSON::Field(key: "")]` annotations. The custom key will be transformed to and from the specified case.  
-It works with `JSON::Serializable.use_json_discriminator` too.  
-Also add an optional `default` parameter to `JSON::Serializable.use_json_discriminator` because it's handy and I need it anyway.  
+A drop-in shard for case aware JSON serialization.
 
 ## Installation
 
@@ -12,8 +8,8 @@ Also add an optional `default` parameter to `JSON::Serializable.use_json_discrim
 
    ```yaml
    dependencies:
-     case_aware_json:
-       github: globoplox/case_aware_json
+     casandra:
+       github: grkek/casandra
    ```
 
 2. Run `shards install`
@@ -21,19 +17,23 @@ Also add an optional `default` parameter to `JSON::Serializable.use_json_discrim
 ## Usage
 
 ```crystal
-require "case_aware_json"
+require "casandra"
 
-class Test
+class User
   include JSON::Serializable
-  property test_property : String
-  def initialize(@test_property) end
+
+  property first_name : String
+  property last_name : String
+
+  def initialize(@first_name : String, @last_name : String)
+  end
 end
 
-Test.new("test").to_json case: :camel
-Test.from_json %({"testProperty": "test"}), case: :camel
+puts User.new(first_name: "Jane", last_name: "Doe").to_json case: :camel # {"firstName":"Jane","lastName":"Doe"}
+pp User.from_json(%({"firstName": "John", "lastName": "Doe"}), case: :camel) # <User:0x10db93e20 @first_name="John", @last_name="Doe">
 ```
 
 
 ## Contributors
 
-- [Globoplox](https://github.com/globoplox) - creator and maintainer
+- [Giorgi Kavrelishvili](https://github.com/grkek)

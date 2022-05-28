@@ -1,7 +1,6 @@
 module JSON
   module Serializable
-    
-    # This an override of the std lib `JSON::Serializable::use_json_discriminator` that add an optional default target class and support for CAJ.
+    # This an override of the std lib `JSON::Serializable::use_json_discriminator` that add an optional default target class and support for Casandra.
     #
     # Tells this class to decode JSON by using a field as a discriminator.
     #
@@ -36,7 +35,7 @@ module JSON
     # Shape.from_json(%({"type": "point", "x": 1, "y": 2}))               # => #<Point:0x10373ae20 @type="point", @x=1, @y=2>
     # Shape.from_json(%({"type": "circle", "x": 1, "y": 2, "radius": 3})) # => #<Circle:0x106a4cea0 @type="circle", @x=1, @y=2, @radius=3>
     # ```
-    macro caj_use_json_discriminator(field, mapping, default = nil)
+    macro casandra_use_json_discriminator(field, mapping, default = nil)
       {% unless mapping.is_a?(HashLiteral) || mapping.is_a?(NamedTupleLiteral) %}
         {% mapping.raise "mapping argument must be a HashLiteral or a NamedTupleLiteral, not #{mapping.class_name.id}" %}
       {% end %}
@@ -78,7 +77,7 @@ module JSON
         unless discriminator_value
           raise ::JSON::SerializableError.new("Missing JSON discriminator field '{{field.id}}'", to_s, nil, *location, nil)
         end
-        
+
         case discriminator_value
         {% for key, value in mapping %}
           {% if mapping.is_a?(NamedTupleLiteral) %}
@@ -115,12 +114,11 @@ module JSON
     end
 
     macro use_json_discriminator(field, mapping, default = nil)
-      caj_use_json_discriminator {{field}}, {{mapping}}, {{default}}
+      casandra_use_json_discriminator {{field}}, {{mapping}}, {{default}}
     end
 
     macro use_json_discriminator(field, mapping)
-      caj_use_json_discriminator {{field}}, {{mapping}}
+      casandra_use_json_discriminator {{field}}, {{mapping}}
     end
-    
   end
 end
